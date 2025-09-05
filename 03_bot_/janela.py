@@ -59,7 +59,8 @@ class Janela_Bot:
                                          text="Perguntar",
                                          font=("Trebuchet MS", 13),
                                          bg="#11f050",
-                                         bd=2)
+                                         bd=2,
+                                         command=self.resposta)
         self.botao_perguntar.grid(row=0, column=0, padx=10)
         
         # BOTÃO PERGUNTAR 2
@@ -76,9 +77,11 @@ class Janela_Bot:
                                        text="RESPOSTA")
         self.label_resposta.pack(pady=(20,0))
 
+     
+
 
         #criando o robo
-        self.robo = Gemini_bot()
+        self.robo = Gemini_bot()    
 
 
     def resposta(self):
@@ -86,7 +89,7 @@ class Janela_Bot:
         resposta = self.robo.responder(pergunta)
         self.label_resposta.config(text=resposta)
 
-
+    
 
     def run(self):
         self.janela.mainloop()
