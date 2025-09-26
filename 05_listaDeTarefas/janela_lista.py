@@ -1,12 +1,34 @@
 import tkinter as tk
 import sqlite3
 
+
+class BancoDeDados:
+    def __init__(self, nome_arquivo="tarefas.db"):
+        self.conn = sqlite3.connect(nome_arquivo)
+        self.cursor = self.conn.cursor()
+        self.criar_tabela()
+
+    def criar_tabela(self):
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tarefas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                descricao TEXT NOT NULL,
+                concluido INTEGER DEFAULT 0
+            )
+        """)
+        self.conn.commit()
+
+
+
+
+
+
 class Lista_screen():
     def __init__(self):
         self.janela = tk.Tk()
         self.janela.configure(bg= "#4e4d54")
         self.janela.geometry("800x600+100+50")
-        self.janela.title("A Porra de uma tela de Login")
+        self.janela.title("Lista de Tarefas")
         self.janela.resizable(True, True)
 
         self.titulo = tk.Label(self.janela,
