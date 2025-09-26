@@ -18,6 +18,25 @@ class BancoDeDados:
         """)
         self.conn.commit()
 
+    def adicionar_tarefa(self, descricao):
+        self.cursor.execute("INSERT INTO tarefas (descricao) VALUES (?)", (descricao,))
+        self.conn.commit()
+
+    def remover_tarefa(self, descricao):
+        self.cursor.execute("DELETE FROM tarefas WHERE descricao = ?", (descricao,))
+        self.conn.commit()
+
+    def atualizar_status(self, descricao, concluido):
+        self.cursor.execute("UPDATE tarefas SET concluido = ? WHERE descricao = ?"(concluido, descricao))
+        self.conn.commit()
+
+    def obter_tarefas(self):
+        self.cursor.execute("SELECT descricao, concluido FROM tarefas")
+        return self.cursor.fetchall()
+    
+    def fechar_conexao(self):
+        self.conn.close()
+
 
 
 
@@ -25,6 +44,8 @@ class BancoDeDados:
 
 class Lista_screen():
     def __init__(self):
+        self.db =BancoDeDados()
+
         self.janela = tk.Tk()
         self.janela.configure(bg= "#4e4d54")
         self.janela.geometry("800x600+100+50")
@@ -107,31 +128,55 @@ class Lista_screen():
                                 height=30)
         
 
-        #FUNCOES 
+        self.carregar_tarefas()
+
+        # Garante que o banco será fechado ao sair
+        self.janela.protocol("WM_DELETE_WINDOW", self.fechar)
+
+
+    def carregar_tarefas(self):
+        tarefas = self.db.obter_tarefas()
+        for descricao, concluido in tarefas:
+            status = "[x]" if concluido else "[ ]"
+            self.listacaixa.insert(tk.END, f"{status} {descricao}")
+
     def adcionar_tarefa(self):
         tarefa = self.campo_tarefa.get()
         if tarefa != "":
+            self.db.adicionar_tarefa(tarefa)
             self.listacaixa.insert(self.listacaixa.size(), f"[ ] {tarefa}")
 
     def remover_tarefa(self):
-        tarefa_selecionada = self.listacaixa.curselection()
-        if tarefa_selecionada:
-            self.listacaixa.delete(tarefa_selecionada)
+        selecao = self.listacaixa.curselection()
+        if selecao:
+            index = selecao[0]
+            tarefa = self.listacaixa.get(index)
+            descricao = tarefa[4:]  # Remove o "[ ] " ou "[x] "
+            self.db.remover_tarefa(descricao)
+            self.listacaixa.delete(index)
+
 
     def concluir_tarefa(self):
         tarefa_selecionada = self.listacaixa.curselection()  
         if tarefa_selecionada:
             index = tarefa_selecionada[0]
             tarefa = self.listacaixa.get(index)
+            descricao = tarefa[4:]  # Remove "[ ] " ou "[x] "
 
             if tarefa.startswith("[ ]"):
-                nova_tarefa = tarefa.replace("[ ]", "[x]", 1)
+                nova_tarefa = f"[x] {descricao}"
+                concluido = 1
             elif tarefa.startswith("[x]"):
-                nova_tarefa = tarefa.replace("[x]", "[ ]", 1)
+                nova_tarefa = f"[ ] {descricao}"
+                concluido = 0
 
+            self.db.atualizar_status(descricao, concluido)
             self.listacaixa.delete(index)
             self.listacaixa.insert(index, nova_tarefa)
-        
+    def fechar(self):
+        self.db.fechar_conexao()
+        self.janela.destroy()
+
 
     def run(self):
         self.janela.mainloop()
