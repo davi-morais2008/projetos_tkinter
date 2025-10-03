@@ -27,7 +27,7 @@ class BancoDeDados:
         self.conn.commit()
 
     def atualizar_status(self, descricao, concluido):
-        self.cursor.execute("UPDATE tarefas SET concluido = ? WHERE descricao = ?"(concluido, descricao))
+        self.cursor.execute("UPDATE tarefas SET concluido = ? WHERE descricao = ?", (concluido, descricao))
         self.conn.commit()
 
     def obter_tarefas(self):
@@ -40,11 +40,10 @@ class BancoDeDados:
 
 
 
-
-
 class Lista_screen():
     def __init__(self):
-        self.db =BancoDeDados()
+        self.db = BancoDeDados()
+
 
         self.janela = tk.Tk()
         self.janela.configure(bg= "#4e4d54")
@@ -151,7 +150,7 @@ class Lista_screen():
         if selecao:
             index = selecao[0]
             tarefa = self.listacaixa.get(index)
-            descricao = tarefa[4:]  # Remove o "[ ] " ou "[x] "
+            descricao = tarefa[4:] 
             self.db.remover_tarefa(descricao)
             self.listacaixa.delete(index)
 
@@ -161,12 +160,12 @@ class Lista_screen():
         if tarefa_selecionada:
             index = tarefa_selecionada[0]
             tarefa = self.listacaixa.get(index)
-            descricao = tarefa[4:]  # Remove "[ ] " ou "[x] "
+            descricao = tarefa[4:]  
 
-            if tarefa.startswith("[ ]"):
+            if str(tarefa).startswith("[ ]"):
                 nova_tarefa = f"[x] {descricao}"
                 concluido = 1
-            elif tarefa.startswith("[x]"):
+            elif str(tarefa).startswith("[x]"):
                 nova_tarefa = f"[ ] {descricao}"
                 concluido = 0
 
