@@ -58,6 +58,7 @@ class Login():
                 self.list_button = tk.Button(self.janela,text="Abrir lista de tarefas", command= self.abrir_lista)
                 self.list_button.place(relx=0.5, rely=0.6, anchor="center")
         else:
+            
             self.erro_login = tk.Label(self.janela, text="Usuário ou senha inválidos!")
             self.erro_login.place(relx=0.29, rely=0.75)
 
