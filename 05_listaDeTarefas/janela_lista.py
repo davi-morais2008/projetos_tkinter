@@ -1,6 +1,6 @@
 import tkinter as tk
 import sqlite3
-
+from tkinter import messagebox
 
 class BancoDeDados:
     def __init__(self, nome_arquivo="tarefas.db"):
@@ -69,7 +69,7 @@ class Lista_screen():
         # BOTÕES
         self.button_add = tk.Button(self.janela,
                                     bg="lightblue",
-                                    text="Adcionar",
+                                    text="Adicionar",
                                     font=("Segoe UI", 18),
                                     fg="white",
                                     width=30,
@@ -141,10 +141,22 @@ class Lista_screen():
 
     def adcionar_tarefa(self):
         tarefa = self.campo_tarefa.get()
-        if tarefa != "":
-            self.db.adicionar_tarefa(tarefa)
-            self.listacaixa.insert(self.listacaixa.size(), f"[ ] {tarefa}")
+        #se o campo estiver vazio, faz nada
+        if tarefa == "":
+            return
+        #verifica se oq foi escrito no campo, ja existe na lista
+        tarefas_existentes = self.db.obter_tarefas()
+        for descricao, _ in tarefas_existentes:
+            if descricao == tarefa:
+                messagebox.showerror("Erro", "A tarefa digitada já está na lista.")
+                return
+        #adiciona normalmente caso nao exista
+        self.db.adicionar_tarefa(tarefa)
+        self.listacaixa.insert(self.listacaixa.size(), f"[ ] {tarefa}")
+        self.campo_tarefa.delete(0, tk.END)
 
+        
+        
     def remover_tarefa(self):
         selecao = self.listacaixa.curselection()
         if selecao:
