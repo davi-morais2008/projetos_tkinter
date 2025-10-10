@@ -14,7 +14,7 @@ class Login():
     def __init__(self):
         self.janela = tk.Window(themename="darkly")
         self.janela.geometry("600x600+100+50")
-        self.janela.title("A Porra de uma tela de Login")
+        self.janela.title("Lista de Afazeres")
         self.janela.resizable(False, False)
         self.iniciar()
         
