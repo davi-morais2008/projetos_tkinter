@@ -5,13 +5,6 @@ from tkinter import messagebox
 from janela_lista import BancoDeDados
 
 
-usuarios = {
-    "morais": "0000",
-    "admin": "1234",
-    "joao": "senha",
-    "maria": "teste123"
-}
-
 
 class Login():
     def __init__(self):
@@ -51,23 +44,27 @@ class Login():
 
 
     def verificar(self):
-        
         user = self.entry_user.get()
         senha = self.entry_senha.get()
 
-        if user in usuarios and usuarios[user] == senha:
+        if user == "" or senha == "":
+            messagebox.showerror("Erro", "Preencha todos os campos!")
+            return
+
+        usuario = self.db.cursor.execute(
+            "SELECT * FROM usuarios WHERE nome=? AND senha=?", (user, senha)
+        ).fetchone()
+
+        if usuario:
             for widget in self.janela.winfo_children():
                 widget.destroy()
                 self.texto_login_efetuado = ttk.Label(self.janela, text="Login feito com sucesso!")
                 self.texto_login_efetuado.place(relx=0.5, rely=0.5, anchor="center")
-                #botao voltar a tela de login
-                self.return_button = ttk.Button(self.janela,text="Retornar a tela de login", command= self.iniciar)
+                self.return_button = ttk.Button(self.janela, text="Retornar a tela de login", command=self.iniciar)
                 self.return_button.place(relx=0.5, rely=0.7, anchor="center")
-                #botao de abrir lista de afazeres
-                self.list_button = ttk.Button(self.janela,text="Abrir lista de tarefas", command= self.abrir_lista)
+                self.list_button = ttk.Button(self.janela, text="Abrir lista de tarefas", command=self.abrir_lista)
                 self.list_button.place(relx=0.5, rely=0.6, anchor="center")
         else:
-            
             self.erro_login = ttk.Label(self.janela, text="Usuário ou senha inválidos!")
             self.erro_login.place(relx=0.29, rely=0.75)
 
@@ -85,34 +82,35 @@ class Login():
         # Título
         ttk.Label(self.cadastro, text="Cadastro de Usuário", font=("Segoe UI", 14)).pack(pady=10)
 
-        # Campo de usuário
         ttk.Label(self.cadastro, text="Usuário:").pack()
         entry_user = ttk.Entry(self.cadastro)
         entry_user.pack()
 
-        # Campo de senha
+    
         ttk.Label(self.cadastro, text="Senha:").pack()
         entry_senha = ttk.Entry(self.cadastro, show="•")
         entry_senha.pack()
 
-        # Função interna de cadastro
         def cadastrar():
             user = entry_user.get()
             senha = entry_senha.get()
 
             if user == "" or senha == "":
-                tk.messagebox.showerror("Erro", "Preencha todos os campos!")
+                messagebox.showerror("Erro", "Preencha todos os campos!")
                 return
 
-            if user in usuarios:
-                tk.messagebox.showerror("Erro", "Usuário já existe!")
+            existente = self.db.cursor.execute("SELECT * FROM usuarios WHERE nome=?", (user,)).fetchone()
+            if existente:
+                messagebox.showerror("Erro", "Usuário já existe!")
                 return
 
-            usuarios[user] = senha
-            tk.messagebox.showinfo("Sucesso", "Usuário cadastrado com sucesso!")
+            self.db.cursor.execute("INSERT INTO usuarios (nome, senha) VALUES (?, ?)", (user, senha))
+            self.db.conn.commit()
+
+            messagebox.showinfo("Sucesso", "Usuário cadastrado com sucesso!")
             self.cadastro.destroy()
 
-        # Botão de cadastrar
+        # btao de cadastrar
         ttk.Button(self.cadastro, text="Cadastrar", command=cadastrar).pack(pady=15)
 
 

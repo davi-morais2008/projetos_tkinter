@@ -30,7 +30,7 @@ class BancoDeDados:
     # cadastrar usuario
     def cadastrar_usuario(self, nome, senha):
         try:
-            self.cursor.execute("INSERT INTO usuarios (nome,senha) VALEUS (?, ?)", (nome, senha))
+            self.cursor.execute("INSERT INTO usuarios (nome,senha) VALUES (?, ?)", (nome, senha))
             self.conn.commit()
             return True
         except sqlite3.IntegrityError:
