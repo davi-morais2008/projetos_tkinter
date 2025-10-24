@@ -18,6 +18,31 @@ class BancoDeDados:
         """)
         self.conn.commit()
 
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome TEXT NOT NULL UNIQUE,
+                senha TEXT NOT NULL
+            )
+        """)
+        self.conn.commit()
+
+    # cadastrar usuario
+    def cadastrar_usuario(self, nome, senha):
+        try:
+            self.cursor.execute("INSERT INTO usuarios (nome,senha) VALEUS (?, ?)", (nome, senha))
+            self.conn.commit()
+            return True
+        except sqlite3.IntegrityError:
+            return False
+
+    def verificar_usuario(self, nome, senha):
+        self.cursor.execute("SELECT * FROM usuarios WHERE nome=? and senha=?", (nome, senha))
+        return self.cursor.fetchone() is not None
+
+
+
+    # funcoes das tarefas ---------------------------------------------------------
     def adicionar_tarefa(self, descricao):
         self.cursor.execute("INSERT INTO tarefas (descricao) VALUES (?)", (descricao,))
         self.conn.commit()
