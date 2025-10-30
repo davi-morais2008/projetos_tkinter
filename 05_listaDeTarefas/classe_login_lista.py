@@ -1,6 +1,5 @@
 import ttkbootstrap as ttk
 from janela_lista import Lista_screen
-import tkinter as tk
 from tkinter import messagebox
 from janela_lista import BancoDeDados
 
@@ -52,7 +51,7 @@ class Login():
             return
 
         usuario = self.db.cursor.execute(
-            "SELECT * FROM usuarios WHERE nome=? AND senha=?", (user, senha)
+            "SELECT * FROM usuarios WHERE usuario=? AND senha=?", (user, senha)
         ).fetchone()
 
         if usuario:
@@ -99,12 +98,12 @@ class Login():
                 messagebox.showerror("Erro", "Preencha todos os campos!")
                 return
 
-            existente = self.db.cursor.execute("SELECT * FROM usuarios WHERE nome=?", (user,)).fetchone()
+            existente = self.db.cursor.execute("SELECT * FROM usuarios WHERE usuario=?", (user,)).fetchone()
             if existente:
                 messagebox.showerror("Erro", "Usuário já existe!")
                 return
 
-            self.db.cursor.execute("INSERT INTO usuarios (nome, senha) VALUES (?, ?)", (user, senha))
+            self.db.cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES (?, ?)", (user, senha))
             self.db.conn.commit()
 
             messagebox.showinfo("Sucesso", "Usuário cadastrado com sucesso!")

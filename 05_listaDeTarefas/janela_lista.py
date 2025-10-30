@@ -3,48 +3,50 @@ import sqlite3
 from tkinter import messagebox
 
 class BancoDeDados:
-    def __init__(self, nome_arquivo="tarefas.db"):
-        self.conn = sqlite3.connect(nome_arquivo)
+    def __init__(self, usuario_arquivo="tarefas.db"):
+        self.conn = sqlite3.connect(usuario_arquivo)
         self.cursor = self.conn.cursor()
         self.criar_tabela()
+        self.criar_tabela_usuarios()
 
     def criar_tabela(self):
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS tarefas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 descricao TEXT NOT NULL,
-                concluido INTEGER DEFAULT 0
+                concluido INTEGER DEFAULT 0,
+                usuario VARCHAR (20)
             )
         """)
         self.conn.commit()
 
+    def criar_tabela_usuarios(self):
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL UNIQUE,
+                usuario VARCHAR (20) PRIMARY KEY UNIQUE,
                 senha TEXT NOT NULL
             )
         """)
         self.conn.commit()
 
     # cadastrar usuario
-    def cadastrar_usuario(self, nome, senha):
+    def cadastrar_usuario(self, usuario, senha):
         try:
-            self.cursor.execute("INSERT INTO usuarios (nome,senha) VALUES (?, ?)", (nome, senha))
+            self.cursor.execute("INSERT INTO usuarios (usuario,senha) VALUES (?, ?)", (usuario, senha))
             self.conn.commit()
             return True
         except sqlite3.IntegrityError:
             return False
 
-    def verificar_usuario(self, nome, senha):
-        self.cursor.execute("SELECT * FROM usuarios WHERE nome=? and senha=?", (nome, senha))
+    def verificar_usuario(self, usuario, senha):
+        self.cursor.execute("SELECT * FROM usuarios WHERE usuario=? and senha=?", (usuario, senha))
         return self.cursor.fetchone() is not None
 
 
 
     # funcoes das tarefas ---------------------------------------------------------
     def adicionar_tarefa(self, descricao):
-        self.cursor.execute("INSERT INTO tarefas (descricao) VALUES (?)", (descricao,))
+        self.cursor.execute("INSERT INTO tarefas (descricao, usuario) VALUES (?, ?)", (descricao,))
         self.conn.commit()
 
     def remover_tarefa(self, descricao):
@@ -139,7 +141,7 @@ class Lista_screen():
                                 )
         
         self.texto_inserir = tk.Label(self.janela,
-                                      text="Digite o nome da tarefa: ",
+                                      text="Digite o usuario da tarefa: ",
                                       font=("Segoe UI", 18),
                                       fg="white",
                                       bg="#4e4d54")
