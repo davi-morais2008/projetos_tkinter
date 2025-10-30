@@ -45,8 +45,8 @@ class BancoDeDados:
 
 
     # funcoes das tarefas ---------------------------------------------------------
-    def adicionar_tarefa(self, descricao):
-        self.cursor.execute("INSERT INTO tarefas (descricao, usuario) VALUES (?, ?)", (descricao,))
+    def adicionar_tarefa(self, descricao, usuario):
+        self.cursor.execute("INSERT INTO tarefas (descricao, usuario) VALUES (?, ?)", (descricao, usuario))
         self.conn.commit()
 
     def remover_tarefa(self, descricao):
@@ -57,8 +57,8 @@ class BancoDeDados:
         self.cursor.execute("UPDATE tarefas SET concluido = ? WHERE descricao = ?", (concluido, descricao))
         self.conn.commit()
 
-    def obter_tarefas(self):
-        self.cursor.execute("SELECT descricao, concluido FROM tarefas")
+    def obter_tarefas(self, usuario):
+        self.cursor.execute("SELECT descricao, concluido FROM tarefas WHERE usuario = ?", (usuario,))
         return self.cursor.fetchall()
     
     def fechar_conexao(self):
@@ -68,7 +68,9 @@ class BancoDeDados:
 
 
 class Lista_screen():
-    def __init__(self):
+    def __init__(self, usuario):
+
+        self.usuario = usuario
         self.db = BancoDeDados()
 
 
@@ -161,7 +163,7 @@ class Lista_screen():
 
 
     def carregar_tarefas(self):
-        tarefas = self.db.obter_tarefas()
+        tarefas = self.db.obter_tarefas(self.usuario)
         for descricao, concluido in tarefas:
             status = "[x]" if concluido else "[ ]"
             self.listacaixa.insert(tk.END, f"{status} {descricao}")
@@ -172,13 +174,13 @@ class Lista_screen():
         if tarefa == "":
             return
         #verifica se oq foi escrito no campo, ja existe na lista
-        tarefas_existentes = self.db.obter_tarefas()
+        tarefas_existentes = self.db.obter_tarefas(self.usuario)
         for descricao, _ in tarefas_existentes:
             if descricao == tarefa:
                 messagebox.showerror("Erro", "A tarefa digitada já está na lista.")
                 return
         #adiciona normalmente caso nao exista
-        self.db.adicionar_tarefa(tarefa)
+        self.db.adicionar_tarefa(tarefa, self.usuario)
         self.listacaixa.insert(self.listacaixa.size(), f"[ ] {tarefa}")
         self.campo_tarefa.delete(0, tk.END)
 

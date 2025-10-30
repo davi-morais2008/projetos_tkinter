@@ -4,6 +4,7 @@ from tkinter import messagebox
 from janela_lista import BancoDeDados
 
 
+usuario_logado = None
 
 class Login():
     def __init__(self):
@@ -55,6 +56,8 @@ class Login():
         ).fetchone()
 
         if usuario:
+            global usuario_logado
+            usuario_logado = user
             for widget in self.janela.winfo_children():
                 widget.destroy()
                 self.texto_login_efetuado = ttk.Label(self.janela, text="Login feito com sucesso!")
@@ -69,7 +72,8 @@ class Login():
 
     def abrir_lista(self):
         self.janela.destroy()
-        lista = Lista_screen()
+        global usuario_logado
+        lista = Lista_screen(usuario_logado)
         lista.run()
 
     def abrir_cadastro(self):
