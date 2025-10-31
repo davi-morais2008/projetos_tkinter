@@ -16,7 +16,7 @@ class BancoDeDados:
         telefone VARCHAR(15),
         email VARCHAR (40),
         morada VARCHAR (50),
-        favorito INTEGER DEFAULT 0
+        favorito BOOLEAN DEFAULT 0
         )""")
         self.con.commit()
 
@@ -34,9 +34,9 @@ class BancoDeDados:
 
     def obter_contatos(self, nome=None):
         if nome:
-            self.cursor.execute("SELECT nome, telefone, email, morada, concluido FROM contatos WHERE nome = ?", (nome,))
+            self.cursor.execute("SELECT nome, telefone, email, morada, favorito FROM contatos WHERE nome = ?",(nome,))
         else:
-            self.cursor.execute("SELECT nome, telefone, email, morada FROM contatos")
+            self.cursor.execute("SELECT nome, telefone, email, morada, favorito FROM contatos ORDER BY favorito DESC, nome ASC")
         return self.cursor.fetchall()
 
     def favoritar(self, nome, favorito):
@@ -45,6 +45,8 @@ class BancoDeDados:
     def obter_favorito(self,nome):
         self.cursor.execute("SELECT favorito FROM contatos WHERE nome = ?", (nome,))
         return self.cursor.fetchone()[0]
+    
+
 
     def fechar_conexao(self):
         self.con.close()

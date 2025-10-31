@@ -12,6 +12,13 @@ class AppPrincipal:
         self.janela.geometry("800x900+100+50")
         self.janela.resizable(False, False)
 
+        self.label_titulo = ttk.Label(self.janela, text="Gerenciador", font=("Helvetica", 20))
+        self.label_titulo.place(x=550, y=50)
+        self.label_titulo2 = ttk.Label(self.janela, text="de", font=("Helvetica", 20))
+        self.label_titulo2.place(x=625, y=110)
+        self.label_titulo3 = ttk.Label(self.janela, text="Contatos", font=("Helvetica", 20))
+        self.label_titulo3.place(x=580, y=170)
+
         #nome
         self.label_nome = ttk.Label(self.janela, text="Nome:")
         self.label_nome.place(x=50, y=50)
@@ -82,8 +89,20 @@ class AppPrincipal:
     #-------------------- FUNÇOES
     def carregar_contatos(self):
         ctt = self.db.obter_contatos()
-        for nome, telefone, email, morada in ctt:
+        for nome, telefone, email, morada, concluido in ctt:
+            if concluido == 1:
+                nome = f"★ {nome}"
             self.tree.insert("", "end", values=(nome, telefone, email, morada))
+
+    def atualizar_lista(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        contatos = self.db.obter_contatos()
+        for nome, telefone, email, morada, favorito in contatos:
+            if favorito == 1:
+                nome = f"★ {nome}"
+            self.tree.insert("", "end", values=(nome, telefone, email, morada))
+
 
     def adicionar_contato(self):
         nome = self.entry_nome.get() 
@@ -163,9 +182,11 @@ class AppPrincipal:
         item = self.tree.selection()
         if not item:
             return
-        item =  item[0]
+
+        item = item[0]
         valores = self.tree.item(item, "values")
-        nome = valores[0]
+        nome = valores[0].replace("★ ", "")  # limpa o nome antes de usar no BD
+
         favorito_atual = self.db.obter_favorito(nome)
         novo_valor = 0 if favorito_atual else 1
         self.db.favoritar(nome, novo_valor)
@@ -173,9 +194,9 @@ class AppPrincipal:
         if novo_valor == 1:
             self.tree.item(item, values=(f"★ {nome}", valores[1], valores[2], valores[3]))
         else:
-            self.tree.item(item, values=(nome.replace("  ", ""), valores[1], valores[2], valores[3]))
-        
+            self.tree.item(item, values=(nome, valores[1], valores[2], valores[3]))
 
+        self.atualizar_lista()
         
     def run(self):
         self.janela.mainloop()
