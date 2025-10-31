@@ -3,7 +3,7 @@ import sqlite3
 from tkinter import messagebox
 
 class BancoDeDados:
-    def __init__(self, usuario_arquivo="tarefas.db"):
+    def __init__(self, usuario_arquivo="05_listaDeTarefas/tarefas.db"):
         self.conn = sqlite3.connect(usuario_arquivo)
         self.cursor = self.conn.cursor()
         self.criar_tabela()
@@ -213,6 +213,7 @@ class Lista_screen():
             self.db.atualizar_status(descricao, concluido)
             self.listacaixa.delete(index)
             self.listacaixa.insert(index, nova_tarefa)
+
     def fechar(self):
         self.db.fechar_conexao()
         self.janela.destroy()

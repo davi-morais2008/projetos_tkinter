@@ -15,7 +15,8 @@ class BancoDeDados:
         nome VARCHAR (100) UNIQUE,
         telefone VARCHAR(15),
         email VARCHAR (40),
-        morada VARCHAR (50)
+        morada VARCHAR (50),
+        favorito INTEGER DEFAULT 0
         )""")
         self.con.commit()
 
@@ -33,10 +34,17 @@ class BancoDeDados:
 
     def obter_contatos(self, nome=None):
         if nome:
-            self.cursor.execute("SELECT nome, telefone, email, morada FROM contatos WHERE nome = ?", (nome,))
+            self.cursor.execute("SELECT nome, telefone, email, morada, concluido FROM contatos WHERE nome = ?", (nome,))
         else:
             self.cursor.execute("SELECT nome, telefone, email, morada FROM contatos")
         return self.cursor.fetchall()
+
+    def favoritar(self, nome, favorito):
+        self.cursor.execute("UPDATE contatos SET favorito = ? WHERE nome = ?", (favorito, nome))
+        self.con.commit()
+    def obter_favorito(self,nome):
+        self.cursor.execute("SELECT favorito FROM contatos WHERE nome = ?", (nome,))
+        return self.cursor.fetchone()[0]
 
     def fechar_conexao(self):
         self.con.close()

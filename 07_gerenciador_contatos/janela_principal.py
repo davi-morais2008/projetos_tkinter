@@ -45,15 +45,15 @@ class AppPrincipal:
         self.botao_add.place(x=50, y=300)
 
         self.botao_editar = ttk.Button(self.janela, width=10, text="Editar", command=self.editar_contatos)
-        self.botao_editar.place(x=250, y=300)
+        self.botao_editar.place(x=200, y=300)
 
         self.botao_remover = ttk.Button(self.janela, width=10, text="Remover", command=self.remover_contatos)
-        self.botao_remover.place(x=400, y=300)
+        self.botao_remover.place(x=350, y=300)
 
-        self.botao_limpar = ttk.Button(self.janela, width=10, text="Limpar", command=self.remover_contatos)
-        self.botao_limpar.place(x=550, y=300)
+        self.botao_limpar = ttk.Button(self.janela, width=10, text="Limpar", command=self.limpar_contatos)
+        self.botao_limpar.place(x=500, y=300)
 
-        self.botao_remover = ttk.Button(self.janela, width=10, text="Favoritar", command=self.remover_contatos)
+        self.botao_remover = ttk.Button(self.janela, width=10, text="Favoritar", command=self.favoritar_contatos)
         self.botao_remover.place(x=650, y=300)
         
         #tree
@@ -110,12 +110,20 @@ class AppPrincipal:
         self.entry_morada.delete(0, "end")
     
     def selecionar_contatos(self, event):
-        item = self.tree.selection()[0]
+        selecionado = self.tree.selection()
+        if not selecionado:
+            return
+        item = selecionado[0]
         valores = self.tree.item(item, "values")
         self.contato_selecionado = valores[0]
 
-        self.entry_nome.insert(0, valores[0])
-        self.entry_telefone.insert(0, valores[1])
+        self.entry_nome.delete(0, "end")
+        self.entry_telefone.delete(0, "end")
+        self.entry_email.delete(0, "end")
+        self.entry_morada.delete(0, "end")
+
+        self.entry_nome.insert(0,valores[0])
+        self.entry_telefone.insert("end", valores[1])
         self.entry_email.insert(0, valores[2])
         self.entry_morada.insert(0, valores[3])
 
@@ -135,11 +143,40 @@ class AppPrincipal:
         self.entry_morada.delete(0, "end")
 
     def remover_contatos(self):
-        item = self.tree.selection()
+        selecionados = self.tree.selection()
+        if not selecionados:
+            messagebox.showwarning("Aviso", "Selecione um contato para remover.")
+            return
+        item = selecionados[0]
         valores = self.tree.item(item, "values")
-        self.db.remover(valores[0])
+        nome = valores[0] 
+        self.db.remover(nome)
         self.tree.delete(item)
 
+    def limpar_contatos(self):
+        self.entry_nome.delete(0, "end")
+        self.entry_telefone.delete(0, "end")
+        self.entry_email.delete(0, "end")
+        self.entry_morada.delete(0, "end")
+
+    def favoritar_contatos(self):
+        item = self.tree.selection()
+        if not item:
+            return
+        item =  item[0]
+        valores = self.tree.item(item, "values")
+        nome = valores[0]
+        favorito_atual = self.db.obter_favorito(nome)
+        novo_valor = 0 if favorito_atual else 1
+        self.db.favoritar(nome, novo_valor)
+
+        if novo_valor == 1:
+            self.tree.item(item, values=(f"★ {nome}", valores[1], valores[2], valores[3]))
+        else:
+            self.tree.item(item, values=(nome.replace("  ", ""), valores[1], valores[2], valores[3]))
+        
+
+        
     def run(self):
         self.janela.mainloop()
 
