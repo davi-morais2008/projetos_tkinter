@@ -155,7 +155,7 @@ class AppPrincipal:
         email_novo = self.entry_email.get() 
         morada_novo = self.entry_morada.get()
 
-        if nome_novo or telefone_novo or email_novo or morada_novo =="":
+        if nome_novo == "" or telefone_novo == "" or email_novo == "" or morada_novo == "":
             messagebox.showwarning("Aviso", "Os campos estão vazios! Preencha-os para editar.")  
             return
         
