@@ -20,28 +20,28 @@ class AppPrincipal:
         self.label_titulo3.place(x=580, y=170)
 
         #nome
-        self.label_nome = ttk.Label(self.janela, text="Nome:")
+        self.label_nome = ttk.Label(self.janela, text="Nome:", font=("Helvetica", 16), foreground="#316C9C")
         self.label_nome.place(x=50, y=50)
 
         self.entry_nome = ttk.Entry(self.janela, width=40)
         self.entry_nome.place(x=150, y=50)
         
         #tel
-        self.label_telefone = ttk.Label(self.janela, text="Telefone:")
+        self.label_telefone = ttk.Label(self.janela, text="Telefone:", font=("Helvetica", 16), foreground="#316C9C")
         self.label_telefone.place(x=50, y=110)
 
         self.entry_telefone = ttk.Entry(self.janela, width=40)
         self.entry_telefone.place(x=150, y=110)
 
         #email
-        self.label_email = ttk.Label(self.janela, text="Email:")
+        self.label_email = ttk.Label(self.janela, text="Email:", font=("Helvetica", 16), foreground="#316C9C")
         self.label_email.place(x=50, y=170)
 
         self.entry_email = ttk.Entry(self.janela, width=40)
         self.entry_email.place(x=150, y=170)
 
         #moradad
-        self.label_morada = ttk.Label(self.janela, text="Morada:")
+        self.label_morada = ttk.Label(self.janela, text="Morada:", font=("Helvetica", 16), foreground="#316C9C")
         self.label_morada.place(x=50, y=230)
 
         self.entry_morada = ttk.Entry(self.janela, width=40)
@@ -63,24 +63,29 @@ class AppPrincipal:
         self.botao_remover = ttk.Button(self.janela, width=10, text="Favoritar", command=self.favoritar_contatos)
         self.botao_remover.place(x=650, y=300)
         
+
+        estilo = ttk.Style()
+        estilo.configure("Treeview", rowheight=35, font=("Helvetica", 12))  # altera a altura das linhas
+        estilo.configure("Treeview.Heading", font=("Helvetica", 14, "bold"), foreground="#316C9C")
+
         #tree
         self.tree = ttk.Treeview(
             self.janela,
             columns=("nome", "telefone", "email", "morada"),
             show="headings",
-            bootstyle="dark"
+       
         )
-        self.tree.place(x=50, y=380, width=700, height=700)
+        self.tree.place(x=0, y=380, width=800, height=900)
 
         self.tree.heading("nome", text="Nome Completo")
         self.tree.heading("telefone", text="Telefone")
         self.tree.heading("email", text="Email")
         self.tree.heading("morada", text="Morada")
 
-        self.tree.column("nome", width=200)
-        self.tree.column("telefone", width=120)
-        self.tree.column("email", width=200)
-        self.tree.column("morada", width=200)
+        self.tree.column("nome", width=150, anchor="center")
+        self.tree.column("telefone", width=120, anchor="center")
+        self.tree.column("email", width=180, anchor="center")
+        self.tree.column("morada", width=150, anchor="center")
 
         self.tree.bind("<<TreeviewSelect>>", self.selecionar_contatos)
 
@@ -111,17 +116,17 @@ class AppPrincipal:
         morada = self.entry_morada.get()
 
         if not nome or not telefone or not email or not morada:
-            messagebox.showerror("Erro", "Preencha os campos para adicionar um contato!")
+            messagebox.showwarning("Aviso!", "Preencha os campos para adicionar um contato!")
             return
         
         contato_existentes = self.db.obter_contatos()
         for c in contato_existentes:
             if c[0] == nome:
-                messagebox.showerror("Erro", "Já existe um contato com este nome!")
+                messagebox.showwarning("Aviso!", "Já existe um contato com este nome!")
                 return
         
         self.db.adicionar(nome, telefone, email, morada)
-        self.tree.insert("", "end", values=(nome, email, telefone, morada)) 
+        self.tree.insert("", "end", values=(nome, telefone, email, morada)) 
 
         self.entry_nome.delete(0, "end")
         self.entry_telefone.delete(0, "end")
@@ -152,10 +157,14 @@ class AppPrincipal:
         email_novo = self.entry_email.get() 
         morada_novo = self.entry_morada.get()
 
+        if nome_novo or telefone_novo or email_novo or morada_novo =="":
+            messagebox.showwarning("Aviso", "Os campos estão vazios! Preencha-os para editar.")  
+            return
+        
         self.db.editar(self.contato_selecionado, nome_novo, telefone_novo, email_novo, morada_novo)
         item = self.tree.selection()[0]
         self.tree.item(item, values=(nome_novo, telefone_novo, email_novo, morada_novo))
-
+        
         self.entry_nome.delete(0, "end")
         self.entry_telefone.delete(0, "end")
         self.entry_email.delete(0, "end")
