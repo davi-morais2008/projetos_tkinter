@@ -15,9 +15,9 @@ class AppPrincipal:
         self.label_titulo = ttk.Label(self.janela, text="Gerenciador", font=("Helvetica", 20))
         self.label_titulo.place(x=550, y=50)
         self.label_titulo2 = ttk.Label(self.janela, text="de", font=("Helvetica", 20))
-        self.label_titulo2.place(x=625, y=110)
+        self.label_titulo2.place(x=615, y=110)
         self.label_titulo3 = ttk.Label(self.janela, text="Contatos", font=("Helvetica", 20))
-        self.label_titulo3.place(x=580, y=170)
+        self.label_titulo3.place(x=570, y=170)
 
         #nome
         self.label_nome = ttk.Label(self.janela, text="Nome:", font=("Helvetica", 16), foreground="#316C9C")
@@ -88,10 +88,12 @@ class AppPrincipal:
         self.tree.column("morada", width=150, anchor="center")
 
         self.tree.bind("<<TreeviewSelect>>", self.selecionar_contatos)
+        self.tree.bind("<Delete>", self.remover_contatos)
+        self.tree.bind("<Control-n>", self.adicionar_contato)
 
         self.carregar_contatos()
 
-    #-------------------- FUNÇOES
+    # FUNÇOES
     def carregar_contatos(self):
         ctt = self.db.obter_contatos()
         for nome, telefone, email, morada, concluido in ctt:
@@ -127,11 +129,7 @@ class AppPrincipal:
         
         self.db.adicionar(nome, telefone, email, morada)
         self.tree.insert("", "end", values=(nome, telefone, email, morada)) 
-
-        self.entry_nome.delete(0, "end")
-        self.entry_telefone.delete(0, "end")
-        self.entry_email.delete(0, "end")
-        self.entry_morada.delete(0, "end")
+        self.limpar_contatos()
     
     def selecionar_contatos(self, event):
         selecionado = self.tree.selection()
@@ -170,16 +168,17 @@ class AppPrincipal:
         self.entry_email.delete(0, "end")
         self.entry_morada.delete(0, "end")
 
-    def remover_contatos(self):
+    def remover_contatos(self, event=None):
         selecionados = self.tree.selection()
         if not selecionados:
             messagebox.showwarning("Aviso", "Selecione um contato para remover.")
             return
         item = selecionados[0]
         valores = self.tree.item(item, "values")
-        nome = valores[0] 
+        nome = valores[0].replace("★ ", "") 
         self.db.remover(nome)
         self.tree.delete(item)
+        self.limpar_contatos()
 
     def limpar_contatos(self):
         self.entry_nome.delete(0, "end")
